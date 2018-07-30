@@ -15,7 +15,7 @@
 - The print statements to output the returned info from the queries fromat the strings from the variables into a readable fashion for the end user.
 - The time module is imported to allow conversion of the datetime from SQL into a friendly string of Month DayNumber, Year -- example January 1, 2018. Without this the time was formatted as 01-01-2018.
 
-#### Requirements
+#### Prerequisites
 - This application requires psycopg2 to be installed, if not already installed.
     ```
     pip install psycop2
