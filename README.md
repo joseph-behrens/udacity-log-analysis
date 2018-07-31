@@ -4,7 +4,9 @@
 
 ---
 
-### Requirements
+### Description
+
+The application has three requirements to solve for:
 
 1. What are the most popular three articles of all time? Which articles have been accessed the most? Present this information as a sorted list with the most popular article at the top.
 2. Who are the most popular article authors of all time? That is, when you sum up all of the articles each author has written, which authors get the most page views? Present this as a sorted list with the most popular author at the top.
@@ -45,36 +47,41 @@ The News database contains three tables and is created via a script. The instruc
 
 ### Design
 
-- All SQL queries are organzied into functions.
-- The functions are called in order of the requriements list and the output is assigned to respective variables. This was done to make it easier to manipulate the output when presenting it to the screen.
-- The print statements to output the returned info from the queries fromat the strings from the variables into a readable fashion for the end user.
-- The time module is imported to allow conversion of the datetime from SQL into a friendly string of Month DayNumber, Year -- example January 1, 2018. Without this the time was formatted as 01-01-2018.
+- There is a function used for making queries that takes in the database name and query string. This is to make it easier to add other reports later.
+- The printing functions are called in order of the requriements list. Each print function calls the query function and outputs its report.
+- There are two views that are used to make the query calls cleaner.
 
 ---
 
-### Prerequisites
+### Running the Application
 
 - It is recommended to run the application from a preconfigured Vagrant virtual machine that contains Python and PostgreSQL pre-installed.
     1. To install Vagrant you will first need to download and install [Virtual Box](https://www.virtualbox.org/wiki/Downloads)
     2. Download and install [Vagrant](https://www.vagrantup.com/downloads.html)
-    3. Clone or download the Vagrant virtual machine from [Github](https://github.com/joseph-behrens/fullstack-nanodegree-vm)
-    4. Open a command shell and navigate to the "vagrant" folder in the cloned repo and run `vagrant up` .  This will take a few minutes the first time you run it.
+    3. Clone or download this repo.
+    4. Open a command shell and navigate to the folder where you cloned the repo and run `vagrant up` . This will take a few minutes the first time you run it.
     5. Once the machine is running run `vagrant ssh` from the same directory to log in to the computer.
-    6. Download the [News database creation script](https://d17h27t6h515a5.cloudfront.net/topher/2016/August/57b5f748_newsdata/newsdata.zip) and extract it to the vagrant directory on your computer. This folder is synced with the Vagrant virtual machine you ssh'ed into.
-    7. In the Vagrant VM's ssh connection create the database by running `psql -d news -f`
+    6. To run the application from the vagrant ssh session run `python /vagrant/log-analysis.py`
 
-- If you prefer to not use Vagrant, you can download [Python](https://www.python.org/downloads/) and install it onto your own computer.
-- [PostgreSQL](https://www.postgresql.org/download/) will also be required if you decided to run without Vagrant.
-- This application requires psycopg2 to be installed. This is used to make connections to the database from Python.
-    1. First, ensure [pip](https://pip.pypa.io/en/stable/installing/) is installed
-    2. Then from your command shell run `pip install psycop2` .
+- If you prefer to not use Vagrant.
+    1. Download [Python](https://www.python.org/downloads/) and install it onto your own computer.
+    2. [PostgreSQL](https://www.postgresql.org/download/) will also be required if you decided to run without Vagrant.
+    3. This application requires psycopg2 to be installed. This is used to make connections to the database from Python.
+        - First, ensure [pip](https://pip.pypa.io/en/stable/installing/) is installed
+        - Then from your command shell run `pip install psycop2-binary` .
+    4. Clone or download this repository to your computer.
+    5. Open a command shell and navigate to the directory you saved to.
+    6. Create the news database by running `psql -d news -f newsdata.sql`
+    7. Create the SQL views by running `psql -d news -f create-views.sql`
+    8. Run the application using `python log-analysis.py`
 
 ---
 
 ### Views
 
-- This application uses two SQL views but it builds them from within the application. There is error handling in place in case the view already exists when the application is started.
-- The first view is:
+This application uses two SQL views that are used by the report printing queries.
+
+1. The first view pulls together a list of all the articles and how many page views each article has:
     ```sql
     create view top_articles as
         select articles.title, articles.author, count(log.id)
@@ -83,7 +90,7 @@ The News database contains three tables and is created via a script. The instruc
         group by articles.title, articles.author
         order by count(log.id) desc;
     ```
-- And the second view:
+2. The second view sorts page view error codes by day and calculates the percentage of views that resulted in an error for that day:
     ```sql
     create view error_percentages as
         select to_char(error_codes.day,'MM-DD-YYYY') as date,
